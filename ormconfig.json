@@ -1,0 +1,26 @@
+{
+    "type": "mysql",
+    "host": "localhost",
+    "port": 3306,
+    "username": "admin",
+    "password": "root",
+    "database": "college",
+    "synchronize": true,
+    "logging": false,
+    "migrationsTableName": "custom_migration_table",
+    "entities": [
+        "src/entity/**/*.ts"
+    ],
+    "migrationsRun": true,
+    "migrations": [
+        "src/migration/**/*.ts"
+    ],
+    "subscribers": [
+        "src/subscriber/**/*.ts"
+    ],
+    "cli": {
+        "entitiesDir": "src/entity",
+        "migrationsDir": "src/migration",
+        "subscribersDir": "src/subscriber"
+    }
+}

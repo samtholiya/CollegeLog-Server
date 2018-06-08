@@ -59,3 +59,10 @@ typings/
 
 # next.js build output
 .next
+
+.idea/
+.vscode/
+node_modules/
+build/
+tmp/
+temp/
