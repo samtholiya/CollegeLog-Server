@@ -19,6 +19,15 @@ export class UserService {
             .getMany();
     }
 
+    public static getUsersByType(type: string): Promise<User[]> {
+        return this.repository.createQueryBuilder("user")
+            .leftJoinAndSelect("user.departments", "department")
+            .leftJoinAndSelect("user.role", "role")
+            .where("role.name=:keyword")
+            .setParameter("keyword", type)
+            .getMany();
+      }
+
     public static getUserById(id: number): Promise<User> {
         return this.repository.createQueryBuilder("user")
             .leftJoinAndSelect("user.departments", "department")
@@ -31,7 +40,7 @@ export class UserService {
     public static getUserByUserName(username: string): Promise<User> {
         return this.repository.createQueryBuilder("user")
             .leftJoinAndSelect("user.departments", "department")
-            .leftJoinAndSelect("user.role","role")
+            .leftJoinAndSelect("user.role", "role")
             .where("user.username=:keyword")
             .setParameter("keyword", username)
             .getOne();

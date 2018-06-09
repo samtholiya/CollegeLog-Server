@@ -19,15 +19,26 @@ router.get('/', (req: basicAuth.IBasicAuthedRequest, res: Response) => {
         });
 });
 
-router.get('/admin', (req: Request, res: Response) => {
-    UserService.getUsers().then((value: User[]) => {
-        for (let i = 0; i < value.length; i++) {
-            value[i].password = 'secret';
-        }
-        ResponseService.sendSuccessful(res, value);
-    }).catch(reason => {
-        ResponseService.sendOperationUnsuccessful(res, reason);
-    });
+router.get('/:roleType', (req: Request, res: Response) => {
+    if (req.params.roleType == "all") {
+        UserService.getUsers().then((value: User[]) => {
+            for (let i = 0; i < value.length; i++) {
+                value[i].password = 'secret';
+            }
+            ResponseService.sendSuccessful(res, value);
+        }).catch(reason => {
+            ResponseService.sendOperationUnsuccessful(res, reason);
+        });
+    } else {
+        UserService.getUsersByType(req.params.roleType).then((value: User[]) => {
+            for (let i = 0; i < value.length; i++) {
+                value[i].password = 'secret';
+            }
+            ResponseService.sendSuccessful(res, value);
+        }).catch(reason => {
+            ResponseService.sendOperationUnsuccessful(res, reason);
+        });
+    }
 });
 
 router.get('/admin/:userId', (req: Request, res: Response) => {
@@ -51,30 +62,14 @@ router.delete('/admin/:userId', (req: Request, res: Response) => {
 
 
 router.post('/', (req: Request, res: Response) => {
-
     let obj: User = req.body;
     obj.isActive = false;
-    //TODO: restrict admin creation
-    // if (req.body.department) {
-    //     // DepartmentService.getDepartment(req.body.department)
-    //     //     .then((value: Department) => {
-    //     //         obj.departments = [value];
-    //     //         UserService.saveUser(obj)
-    //     //             .catch(reason => {
-    //     //                 ResponseService.sendOperationUnsuccessful(res, reason);
-    //     //             }).then((value: User) => {
-    //     //                 ResponseService.sendCreateSuccessful(res, value);
-    //     //             });
-    //     //     }).catch(reason => {
-    //     //         ResponseService.sendOperationUnsuccessful(res, reason);
-    //     //     })
-    // } else {
-        UserService.saveUser(obj)
-            .catch(reason => {
-                ResponseService.sendOperationUnsuccessful(res, reason);
-            }).then((value: User) => {
-                ResponseService.sendCreateSuccessful(res, value);
-            });
+    UserService.saveUser(obj)
+        .catch(reason => {
+            ResponseService.sendOperationUnsuccessful(res, reason);
+        }).then((value: User) => {
+            ResponseService.sendCreateSuccessful(res, value);
+        });
     // }
 });
 

@@ -14,7 +14,11 @@ export function isAuthorizedAsync(username: string, password: string, next) {
             next(null, false);
             return;
         }
-        console.log(password)
+
+        if (!value.isActive) {
+            next("{\"message\":\"User is not active\"}", false)
+        }
+
         if (value.password == Md5.init(password)) {
             next(null, true);
         } else {
@@ -33,7 +37,7 @@ export function isAuthorizedAsync(username: string, password: string, next) {
 export function isAdminAuthorizedAsync(req: basicAuth.IBasicAuthedRequest, res: Response, next) {
     UserService.getUserByUserName(req.auth.user).then((value: User) => {
         let grantAccess = false;
-        
+
         let accessRights = RoleService.getAccessRightsForRole(value.role.name);
         accessRights.forEach((accessRight: AccessRight) => {
             var regexp = new RegExp(accessRight.apiEndpoint);
