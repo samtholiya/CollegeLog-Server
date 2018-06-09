@@ -17,6 +17,7 @@ export function isAuthorizedAsync(username: string, password: string, next) {
 
         if (!value.isActive) {
             next("{\"message\":\"User is not active\"}", false)
+            return;
         }
 
         if (value.password == Md5.init(password)) {
