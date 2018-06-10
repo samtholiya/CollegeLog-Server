@@ -19,9 +19,24 @@ router.get('/', (req: basicAuth.IBasicAuthedRequest, res: Response) => {
         });
 });
 
-router.get('/:roleType', (req: Request, res: Response) => {
-    if (req.params.roleType == "all") {
-        UserService.getUsers().then((value: User[]) => {
+router.get('/count', (req: Request, res: Response) => {
+    UserService.getUsersCount(req.query.roleType)
+        .then((count: number) => {
+            ResponseService.sendSuccessful(res, { count });
+        }).catch((reason) => {
+            ResponseService.sendOperationUnsuccessful(res, reason);
+        })
+})
+
+router.get('/list', (req: Request, res: Response) => {
+
+    if (!(req.query.offset && req.query.limit && req.query.roleType)) {
+        ResponseService.sendParamsRequired(res, { "required_query_params": ["roleType", "offset", "limit"] })
+        return;
+    }
+
+    if (req.query.roleType == "all") {
+        UserService.getUsers(req.query.offset, req.query.limit).then((value: User[]) => {
             for (let i = 0; i < value.length; i++) {
                 value[i].password = 'secret';
             }
@@ -30,14 +45,15 @@ router.get('/:roleType', (req: Request, res: Response) => {
             ResponseService.sendOperationUnsuccessful(res, reason);
         });
     } else {
-        UserService.getUsersByType(req.params.roleType).then((value: User[]) => {
-            for (let i = 0; i < value.length; i++) {
-                value[i].password = 'secret';
-            }
-            ResponseService.sendSuccessful(res, value);
-        }).catch(reason => {
-            ResponseService.sendOperationUnsuccessful(res, reason);
-        });
+        UserService.getUsersByType(req.query.roleType, req.query.offset, req.query.limit)
+            .then((value: User[]) => {
+                for (let i = 0; i < value.length; i++) {
+                    value[i].password = 'secret';
+                }
+                ResponseService.sendSuccessful(res, value);
+            }).catch(reason => {
+                ResponseService.sendOperationUnsuccessful(res, reason);
+            });
     }
 });
 

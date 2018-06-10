@@ -5,6 +5,7 @@ import { Response } from "express-serve-static-core";
 export class ResponseService {
 
     public init() { }
+
     public static sendSuccessful(res: Response, data: any) {
         res.send(data);
     }
@@ -22,4 +23,10 @@ export class ResponseService {
         res.status(400);
         res.send(data);
     }
+
+    public static sendParamsRequired(res: Response, data: any) {
+        res.status(400);
+        res.send(data);
+    }
+
 }

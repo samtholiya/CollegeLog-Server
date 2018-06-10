@@ -1,6 +1,6 @@
 import { DatabaseService } from "./database.service";
 import { User } from "../entity/User";
-import { UpdateResult, Connection, Repository, DeleteResult } from "typeorm";
+import { UpdateResult, Connection, Repository, DeleteResult, SelectQueryBuilder } from "typeorm";
 import { IServicePanel } from '../namespace/initializer'
 @IServicePanel.register
 export class UserService {
@@ -12,21 +12,35 @@ export class UserService {
         UserService.repository = UserService.connection.getRepository(User);
     }
 
-    public static getUsers(): Promise<User[]> {
+    public static getUsers(offset: number, limit: number): Promise<User[]> {
         return this.repository.createQueryBuilder("user")
             .leftJoinAndSelect("user.departments", "department")
             .leftJoinAndSelect("user.role", "role")
+            .offset(offset)
+            .limit(limit)
             .getMany();
     }
 
-    public static getUsersByType(type: string): Promise<User[]> {
+    public static getUsersByType(type: string, offset: number, limit: number): Promise<User[]> {
         return this.repository.createQueryBuilder("user")
             .leftJoinAndSelect("user.departments", "department")
             .leftJoinAndSelect("user.role", "role")
             .where("role.name=:keyword")
             .setParameter("keyword", type)
+            .offset(offset)
+            .limit(limit)
             .getMany();
-      }
+    }
+
+    public static getUsersCount(type?: string): Promise<number> {
+        let query: SelectQueryBuilder<User> = this.repository.createQueryBuilder("user");
+        if (type && type != "all") {
+            query = query.leftJoinAndSelect("user.role", "role")
+                .where("role.name=:keyword")
+                .setParameter("keyword", type)
+        }
+        return query.getCount();
+    }
 
     public static getUserById(id: number): Promise<User> {
         return this.repository.createQueryBuilder("user")
