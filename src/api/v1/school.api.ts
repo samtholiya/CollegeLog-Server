@@ -9,11 +9,6 @@ const router: Router = Router();
 
 router.get('/list', (req: Request, res: Response) => {
 
-    if (!(req.query.limit && req.query.limit)) {
-        ResponseService.sendParamsRequired(res, { "required_query_params": ["offset", "limit"] })
-        return;
-    }
-
     SchoolService.getSchools(req.query.offset, req.query.limit)
         .then((values: School[]) => {
             ResponseService.sendSuccessful(res, values);

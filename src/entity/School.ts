@@ -28,7 +28,7 @@ export class School {
     })
     url: string;
 
-    @OneToMany(type => Department, (department: Department) => department.school)
+    @OneToMany(type => Department, (department: Department) => department.school, { cascade: true })
     departments: Department[]
 
 }

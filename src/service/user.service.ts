@@ -16,6 +16,7 @@ export class UserService {
         return this.repository.createQueryBuilder("user")
             .leftJoinAndSelect("user.departments", "department")
             .leftJoinAndSelect("user.role", "role")
+            .leftJoinAndSelect("department.school", "school")
             .offset(offset)
             .limit(limit)
             .getMany();
@@ -25,6 +26,7 @@ export class UserService {
         return this.repository.createQueryBuilder("user")
             .leftJoinAndSelect("user.departments", "department")
             .leftJoinAndSelect("user.role", "role")
+            .leftJoinAndSelect("department.school","school")
             .where("role.name=:keyword")
             .setParameter("keyword", type)
             .offset(offset)
