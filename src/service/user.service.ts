@@ -2,6 +2,7 @@ import { DatabaseService } from "./database.service";
 import { User } from "../entity/User";
 import { UpdateResult, Connection, Repository, DeleteResult, SelectQueryBuilder } from "typeorm";
 import { IServicePanel } from '../namespace/initializer'
+import { json } from "express";
 @IServicePanel.register
 export class UserService {
     private static connection: Connection;
@@ -62,8 +63,8 @@ export class UserService {
             .getOne();
     }
 
-    public static updateUserById(id: number, updatedUser: User): Promise<UpdateResult> {
-        return this.repository.update(id, updatedUser);
+    public static updateUserById(updatedUser: User): Promise<User> {
+        return this.repository.save(updatedUser);
     }
 
     public static saveUser(user: User): Promise<User> {

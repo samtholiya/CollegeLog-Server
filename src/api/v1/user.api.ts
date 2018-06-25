@@ -67,7 +67,7 @@ router.get('/admin/:userId', (req: Request, res: Response) => {
         });
 });
 
-router.delete('/admin/:userId', (req: Request, res: Response) => {
+router.delete('/:userId', (req: Request, res: Response) => {
     UserService.deleteUserById(req.params.userId)
         .then((value: DeleteResult) => {
             ResponseService.sendSuccessful(res, value);
@@ -79,68 +79,26 @@ router.delete('/admin/:userId', (req: Request, res: Response) => {
 
 router.post('/', (req: Request, res: Response) => {
     let obj: User = req.body;
-    obj.isActive = false;
+    obj.isActive = true;
     UserService.saveUser(obj)
         .catch(reason => {
             ResponseService.sendOperationUnsuccessful(res, reason);
         }).then((value: User) => {
             ResponseService.sendCreateSuccessful(res, value);
         });
-    // }
 });
 
-router.post('/admin', (req: Request, res: Response) => {
-    let obj: User = req.body;
-    UserService.saveUser(obj)
-        .catch(reason => {
-            ResponseService.sendOperationUnsuccessful(res, reason);
-        }).then((value: User) => {
-            ResponseService.sendCreateSuccessful(res, value);
-        }, reason => {
-            ResponseService.sendOperationUnsuccessful(res, reason);
-        });
-});
-
-router.put('/admin', (req: basicAuth.IBasicAuthedRequest, res: Response) => {
-    UserService.getUserByUserName(req.body.userName)
-        .then((value: User) => {
-            let updatedUser: User = req.body;
-            UserService.updateUserById(value.id, updatedUser)
-                .then((value: UpdateResult) => {
-                    ResponseService.sendUpdateSuccessful(res, value);
-                }).catch((reason) => {
-                    ResponseService.sendOperationUnsuccessful(res, reason);
-                });
-        }).catch(reason => {
-            ResponseService.sendOperationUnsuccessful(res, reason);
-        })
-});
-
-router.put('/admin/:userId', (req: basicAuth.IBasicAuthedRequest, res: Response) => {
+router.put('/:userId', (req: basicAuth.IBasicAuthedRequest, res: Response) => {
     let updatedUser: User = req.body;
     UserService.getUserById(req.params.userId)
         .then((value: User) => {
-            if (updatedUser.departments) {
-                DepartmentService.getDepartment(req.body.department)
-                    .then((department: Department) => {
-                        updatedUser.departments = [department];
-                        UserService.updateUserById(value.id, updatedUser)
-                            .catch(reason => {
-                                ResponseService.sendOperationUnsuccessful(res, reason);
-                            }).then((value: UpdateResult) => {
-                                ResponseService.sendCreateSuccessful(res, value);
-                            });
-                    }).catch(reason => {
-                        ResponseService.sendOperationUnsuccessful(res, reason);
-                    })
-            } else {
-                UserService.updateUserById(value.id, updatedUser)
-                    .then((value: UpdateResult) => {
-                        ResponseService.sendUpdateSuccessful(res, value);
-                    }).catch((reason) => {
-                        ResponseService.sendOperationUnsuccessful(res, reason);
-                    });
-            }
+            UserService.updateUserById(updatedUser)
+                .catch(reason => {
+                    ResponseService.sendOperationUnsuccessful(res, reason);
+                }).then((value: User) => {
+                    ResponseService.sendCreateSuccessful(res, value);
+                });
+
         }).catch(reason => {
             ResponseService.sendOperationUnsuccessful(res, reason);
         });
@@ -151,34 +109,26 @@ router.put('/', (req: basicAuth.IBasicAuthedRequest, res: Response) => {
 
     let updatedUser: User = req.body;
     //TODO: Restrict Admin update
-
-    UserService.getUserByUserName(req.auth.user)
-        .then((value: User) => {
-            if (req.body.department) {
-                DepartmentService.getDepartment(req.body.department)
-                    .then((department: Department) => {
-                        updatedUser.departments = [department];
-                        UserService.updateUserById(value.id, updatedUser)
-                            .catch(reason => {
-                                ResponseService.sendOperationUnsuccessful(res, reason);
-                            }).then((value: UpdateResult) => {
-                                ResponseService.sendCreateSuccessful(res, value);
-                            });
-                    }).catch(reason => {
+    if (updatedUser.id) {
+        UserService.updateUserById(updatedUser)
+            .catch(reason => {
+                ResponseService.sendOperationUnsuccessful(res, reason);
+            }).then((value: User) => {
+                ResponseService.sendCreateSuccessful(res, value);
+            });
+    } else {
+        UserService.getUserByUserName(req.auth.user)
+            .then((value: User) => {
+                UserService.updateUserById(updatedUser)
+                    .catch(reason => {
                         ResponseService.sendOperationUnsuccessful(res, reason);
-                    })
-
-            } else {
-                UserService.updateUserById(value.id, updatedUser)
-                    .then((value: UpdateResult) => {
-                        ResponseService.sendUpdateSuccessful(res, value);
-                    }).catch((reason) => {
-                        ResponseService.sendOperationUnsuccessful(res, reason);
+                    }).then((value1: User) => {
+                        ResponseService.sendCreateSuccessful(res, value1);
                     });
-            }
-        }).catch(reason => {
-            ResponseService.sendOperationUnsuccessful(res, reason);
-        })
+            }).catch(reason => {
+                ResponseService.sendOperationUnsuccessful(res, reason);
+            });
+    }
 });
 
 export const UserApi: Router = router;

@@ -26,8 +26,8 @@ export class SchoolService {
             .leftJoinAndSelect("school.departments", "department");
 
         if (offset && limit) {
-            queryBuilder = queryBuilder.offset(offset);
-            queryBuilder = queryBuilder.limit(limit);
+            queryBuilder = queryBuilder.skip(offset);
+            queryBuilder = queryBuilder.take(limit);
         }
         return queryBuilder.getMany();
     }
